@@ -1,0 +1,29 @@
+services:
+  traefik:
+    image: traefik:v3
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  blue:
+    image: nginx:alpine
+    labels:
+      - "traefik.http.routers.blue.rule=Host(`localhost`)"
+      - "traefik.http.routers.blue.priority=10"
+      - "traefik.http.services.blue.loadbalancer.server.port=80"
+    volumes:
+      - ./blue:/usr/share/nginx/html:ro
+
+  green:
+    image: nginx:alpine
+    labels:
+      - "traefik.http.routers.green.rule=Host(`localhost`)"
+      - "traefik.http.routers.green.priority=5"
+      - "traefik.http.services.green.loadbalancer.server.port=80"
+    volumes:
+      - ./green:/usr/share/nginx/html:ro
+
